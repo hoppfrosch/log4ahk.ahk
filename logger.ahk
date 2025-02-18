@@ -1,3 +1,12 @@
+class SimpleLayout {
+    ; Methode zum Formatieren der Log-Nachricht
+    format(level, message) {
+        formattedTime := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") ; Formatierte Zeit
+        levelString := Logger().levelToString(level)
+        return Format("[{}] [{}] {}", formattedTime, levelString, message)
+    }
+}
+
 class Logger {
     ; Definiere die verschiedenen Log-Level als statische Variablen
     static TRACE := 0
@@ -11,9 +20,10 @@ class Logger {
     static instance := ""
 
     ; Konstruktor der Klasse, der das Log-Level initialisiert
-    __New(logLevel := Logger.INFO) {
+    __New(logLevel := Logger.INFO, layout := "") {
         this.logLevel := logLevel
         this.logFile := "log.txt" ; Standard-Log-Datei
+        this.layout := layout ? layout : SimpleLayout() ; Verwende SimpleLayout als Standard
         this.ensureLogFileExists()
     }
 
@@ -29,8 +39,7 @@ class Logger {
     log(level, message) {
         ; Überprüfe, ob der aktuelle Log-Level das Mindestlevel erreicht hat
         if (level >= this.logLevel) {
-            formattedTime := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") ; Formatierte Zeit
-            logMessage := Format("[{}] [{}] {}", formattedTime, this.levelToString(level), message) ; Formatierte Log-Nachricht
+            logMessage := this.layout.format(level, message)
             FileAppend(logMessage "`n", this.logFile) ; Nachricht in die Log-Datei schreiben
             this.output(logMessage) ; Nachricht ausgeben
         }
@@ -82,6 +91,11 @@ class Logger {
     setLogFile(filePath) {
         this.logFile := filePath
         this.ensureLogFileExists()
+    }
+
+    ; Methode zum Setzen des Layouts
+    setLayout(layout) {
+        this.layout := layout
     }
 
     ; Methode zum Sicherstellen, dass die Log-Datei existiert

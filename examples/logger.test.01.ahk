@@ -1,5 +1,13 @@
 #Include %A_ScriptDir%\..\logger.ahk
 
+class CustomLayout {
+    ; Methode zum Formatieren der Log-Nachricht
+    format(level, message) {
+        levelString := Logger().levelToString(level)
+        return Format("CUSTOM LAYOUT - {}: {}", levelString, message)
+    }
+}
+
 class LoggerTests {
     ; Setup-Methode, um die Testumgebung vorzubereiten
     Setup() {
@@ -51,6 +59,17 @@ class LoggerTests {
         this.AssertNotInStr(logContent, "[INFO] Dies ist eine INFO-Nachricht", "Die Log-Datei sollte die INFO-Nachricht nicht enthalten")
     }
 
+    ; Test für die Verwendung eines benutzerdefinierten Layouts
+    TestCustomLayout() {
+        this.Setup()
+        layout := CustomLayout()
+        this.logger.setLayout(layout)
+        this.logger.setLogLevel(Logger.INFO)
+        this.logger.info("Dies ist eine INFO-Nachricht mit benutzerdefiniertem Layout")
+        logContent := FileRead("test_log.txt")
+        this.AssertInStr(logContent, "CUSTOM LAYOUT - INFO: Dies ist eine INFO-Nachricht mit benutzerdefiniertem Layout", "Die Log-Datei sollte die Nachricht im benutzerdefinierten Layout enthalten")
+    }
+
     ; Hilfsmethoden für die Assertions
     Assert(condition, message) {
         if (!condition) {
@@ -80,6 +99,7 @@ tests.TestSingleton()
 tests.TestSetLogLevel()
 tests.TestLogMessage()
 tests.TestSkipLowerLevelMessages()
+tests.TestCustomLayout()
 
 MsgBox "Alle Tests bestanden!"
 ExitApp
