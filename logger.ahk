@@ -14,15 +14,15 @@ class Logger {
     }
 
     ; Methode zum Schreiben einer Log-Nachricht
-    log(level, message) {
-        ; Überprüfe, ob der aktuelle Log-Level das Mindestlevel erreicht hat
-        if (level >= this.logLevel) {
-            formatTime := Format("{:yyyy-MM-dd HH:mm:ss}", A_Now) ; Formatierte Zeit
-            logMessage := Format("[{}] [{}] {}", formatTime, this.levelToString(level), message) ; Formatierte Log-Nachricht
-            FileAppend(logMessage "`n", this.logFile) ; Nachricht in die Log-Datei schreiben
-            this.output(logMessage) ; Nachricht ausgeben
-        }
-    }
+   log(level, message) {
+		; Überprüfe, ob der aktuelle Log-Level das Mindestlevel erreicht hat
+		if (level >= this.logLevel) {
+			formattedTime := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") ; Formatierte Zeit
+			logMessage := Format("[{}] [{}] {}", formattedTime, this.levelToString(level), message) ; Formatierte Log-Nachricht
+			FileAppend(logMessage "`n", this.logFile) ; Nachricht in die Log-Datei schreiben
+			this.output(logMessage) ; Nachricht ausgeben
+		}
+	}
 
     ; Methoden für die verschiedenen Log-Level
     trace(message) {
