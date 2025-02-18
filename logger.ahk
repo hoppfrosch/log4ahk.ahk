@@ -1,3 +1,5 @@
+#Include %A_LineFile%\..\log4ahk\PatternLayout.ahk
+
 class SimpleLayout {
     ; Methode zum Formatieren der Log-Nachricht
     format(level, message) {

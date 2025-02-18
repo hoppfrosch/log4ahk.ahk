@@ -70,6 +70,17 @@ class LoggerTests {
         this.AssertInStr(logContent, "CUSTOM LAYOUT - INFO: Dies ist eine INFO-Nachricht mit benutzerdefiniertem Layout", "Die Log-Datei sollte die Nachricht im benutzerdefinierten Layout enthalten")
     }
 
+    ; Test für die Verwendung des PatternLayouts
+    TestPatternLayout() {
+        this.Setup()
+        layout := PatternLayout("%d - %m")
+        this.logger.setLayout(layout)
+        this.logger.setLogLevel(Logger.INFO)
+        this.logger.info("Dies ist eine INFO-Nachricht mit PatternLayout")
+        logContent := FileRead("test_log.txt")
+        this.AssertInStr(logContent, Format("{} - Dies ist eine INFO-Nachricht mit PatternLayout", FormatTime(A_Now, "yyyy/MM/dd HH:mm:ss")), "Die Log-Datei sollte die Nachricht im PatternLayout enthalten")
+    }
+
     ; Hilfsmethoden für die Assertions
     Assert(condition, message) {
         if (!condition) {
@@ -100,6 +111,7 @@ tests.TestSetLogLevel()
 tests.TestLogMessage()
 tests.TestSkipLowerLevelMessages()
 tests.TestCustomLayout()
+tests.TestPatternLayout()
 
 MsgBox "Alle Tests bestanden!"
 ExitApp
