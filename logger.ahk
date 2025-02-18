@@ -7,10 +7,21 @@ class Logger {
     static ERROR := 4
     static SEVERE := 5
 
+    ; Statische Variable zur Speicherung der Singleton-Instanz
+    static instance := ""
+
     ; Konstruktor der Klasse, der das Log-Level initialisiert
     __New(logLevel := Logger.INFO) {
         this.logLevel := logLevel
         this.logFile := "log.txt" ; Standard-Log-Datei
+    }
+
+    ; Methode zum Abrufen der Singleton-Instanz
+    static getInstance() {
+        if (!Logger.instance) {
+            Logger.instance := Logger()
+        }
+        return Logger.instance
     }
 
     ; Methode zum Schreiben einer Log-Nachricht
