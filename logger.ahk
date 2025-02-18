@@ -14,6 +14,7 @@ class Logger {
     __New(logLevel := Logger.INFO) {
         this.logLevel := logLevel
         this.logFile := "log.txt" ; Standard-Log-Datei
+        this.ensureLogFileExists()
     }
 
     ; Methode zum Abrufen der Singleton-Instanz
@@ -25,15 +26,15 @@ class Logger {
     }
 
     ; Methode zum Schreiben einer Log-Nachricht
-   log(level, message) {
-		; Überprüfe, ob der aktuelle Log-Level das Mindestlevel erreicht hat
-		if (level >= this.logLevel) {
-			formattedTime := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") ; Formatierte Zeit
-			logMessage := Format("[{}] [{}] {}", formattedTime, this.levelToString(level), message) ; Formatierte Log-Nachricht
-			FileAppend(logMessage "`n", this.logFile) ; Nachricht in die Log-Datei schreiben
-			this.output(logMessage) ; Nachricht ausgeben
-		}
-	}
+    log(level, message) {
+        ; Überprüfe, ob der aktuelle Log-Level das Mindestlevel erreicht hat
+        if (level >= this.logLevel) {
+            formattedTime := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") ; Formatierte Zeit
+            logMessage := Format("[{}] [{}] {}", formattedTime, this.levelToString(level), message) ; Formatierte Log-Nachricht
+            FileAppend(logMessage "`n", this.logFile) ; Nachricht in die Log-Datei schreiben
+            this.output(logMessage) ; Nachricht ausgeben
+        }
+    }
 
     ; Methoden für die verschiedenen Log-Level
     trace(message) {
@@ -80,5 +81,13 @@ class Logger {
     ; Methode zum Setzen der Log-Datei
     setLogFile(filePath) {
         this.logFile := filePath
+        this.ensureLogFileExists()
+    }
+
+    ; Methode zum Sicherstellen, dass die Log-Datei existiert
+    ensureLogFileExists() {
+        if !FileExist(this.logFile) {
+            FileAppend("", this.logFile)
+        }
     }
 }
