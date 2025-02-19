@@ -1,5 +1,6 @@
 class PatternLayout {
     pattern := ""
+    version := "1.0.0" ; Versionsnummer der Klasse
 
     ; Konstruktor: Initialisiere die Klasse mit dem angegebenen Muster
     __New(pattern) {

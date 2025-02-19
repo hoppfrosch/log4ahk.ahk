@@ -87,6 +87,12 @@ class PatternLayoutTests {
         this.assertEqual(formattedMessage, expectedMessage)
     }
 
+    ; Teste, ob die Versionsnummer korrekt ist
+    TestVersion() {
+        layout := PatternLayout("%d %p %m")
+        this.assertEqual(layout.version, "1.0.0")
+    }
+
     ; Hilfsmethode: Überprüfe, ob zwei Werte gleich sind
     assertEqual(actual, expected) {
         if (actual != expected) {
@@ -107,6 +113,7 @@ class PatternLayoutTests {
         this.TestReplaceMessageUnknownOption()
         this.TestReplaceDateAndMessage()
         this.TestReplaceDateLevelAndMessage()
+        this.TestVersion()
         MsgBox("All tests passed.")
     }
 }
