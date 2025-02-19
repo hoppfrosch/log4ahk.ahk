@@ -1,0 +1,11 @@
+﻿{
+	"author": "hoppfrosch",
+	"dependencies": {
+		"Uberi/Yunit": "459cde8"
+	},
+	"description": "",
+	"license": "Unlicense",
+	"main": "logger.ahk",
+	"name": "log4ahk",
+	"version": "0.1.0"
+}
