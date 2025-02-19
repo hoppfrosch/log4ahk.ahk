@@ -9,6 +9,38 @@ class PatternLayoutTests {
         this.assertEqual(StrReplace(formattedMessage, expectedDate, ""), "")
     }
 
+    ; Teste, ob das Logging-Level korrekt ersetzt wird
+    TestReplaceLevel() {
+        layout := PatternLayout("%p")
+        level := "INFO"
+        formattedMessage := layout.format(level, "Test message")
+        this.assertEqual(formattedMessage, level)
+    }
+
+    ; Teste, ob das erste Zeichen des Logging-Levels korrekt ersetzt wird
+    TestReplaceLevelFirstLetter() {
+        layout := PatternLayout("%p{1}")
+        level := "INFO"
+        formattedMessage := layout.format(level, "Test message")
+        this.assertEqual(formattedMessage, "I")
+    }
+
+    ; Teste, ob das Logging-Level auf eine bestimmte Länge abgeschnitten wird
+    TestReplaceLevelCustomLength() {
+        layout := PatternLayout("%p{2}")
+        level := "INFO"
+        formattedMessage := layout.format(level, "Test message")
+        this.assertEqual(formattedMessage, "IN")
+    }
+
+    ; Teste, ob das Logging-Level auf eine maximale Länge von 9 Zeichen aufgefüllt wird
+    TestReplaceLevelMaxLength() {
+        layout := PatternLayout("%p{9}")
+        level := "INFO"
+        formattedMessage := layout.format(level, "Test message")
+        this.assertEqual(formattedMessage, "INFO     ")
+    }
+
     ; Teste, ob die Nachricht korrekt ersetzt wird
     TestReplaceMessage() {
         layout := PatternLayout("%m")
@@ -35,6 +67,17 @@ class PatternLayoutTests {
         this.assertEqual(formattedMessage, expectedMessage)
     }
 
+    ; Teste, ob Datum, Logging-Level und Nachricht korrekt ersetzt werden
+    TestReplaceDateLevelAndMessage() {
+        layout := PatternLayout("%d %p %m")
+        level := "INFO"
+        message := "Test message"
+        formattedMessage := layout.format(level, message)
+        expectedDate := FormatTime(A_Now, "yyyy/MM/dd HH:mm:ss")
+        expectedMessage := expectedDate . " " . level . " " . message
+        this.assertEqual(formattedMessage, expectedMessage)
+    }
+
     ; Hilfsmethode: Überprüfe, ob zwei Werte gleich sind
     assertEqual(actual, expected) {
         if (actual != expected) {
@@ -46,9 +89,14 @@ class PatternLayoutTests {
     ; Führe alle Tests aus
     RunTests() {
         this.TestReplaceDate()
+        this.TestReplaceLevel()
+        this.TestReplaceLevelFirstLetter()
+        this.TestReplaceLevelCustomLength()
+        this.TestReplaceLevelMaxLength()
         this.TestReplaceMessage()
         this.TestReplaceMessageChomp()
         this.TestReplaceDateAndMessage()
+        this.TestReplaceDateLevelAndMessage()
         MsgBox("All tests passed.")
     }
 }

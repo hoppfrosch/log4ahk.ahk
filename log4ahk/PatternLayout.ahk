@@ -15,9 +15,15 @@ class PatternLayout {
         }
         ; Überprüfe, ob das Muster %m oder %m{.*} enthält, und ersetze es durch die Nachricht
         match := ""
-        matchPos := RegExMatch(this.pattern, "%m({.*?})?", &match)
+        matchPos := RegExMatch(this.pattern, "%m({.*})?", &match)
         if (matchPos) {
             formattedMessage := this.replaceMessage(formattedMessage, message, match)
+        }
+        ; Überprüfe, ob das Muster %p oder %p{[1-9]} enthält, und ersetze es durch das Logging-Level
+        match := ""
+        matchPos := RegExMatch(this.pattern, "%p({[1-9]})?", &match)
+        if (matchPos) {
+            formattedMessage := this.replaceLevel(formattedMessage, level, match)
         }
         return formattedMessage
     }
@@ -37,5 +43,21 @@ class PatternLayout {
             return StrReplace(formattedMessage, match[0], message)
         }
         return StrReplace(formattedMessage, "%m", message)
+    }
+
+    ; Ersetze %p oder %p{1} im formatierten Nachrichtentext durch das Logging-Level
+    replaceLevel(formattedMessage, level, match) {
+        ; Extrahiere die Option aus dem Match-Objekt
+        option := match[1]
+        ; Überprüfe, ob die Option {1-9} ist
+        if RegExMatch(option, "{([1-9])}", &length) {
+            level := SubStr(level, 1, length[1])
+            ; Füge Leerzeichen hinzu, um die gewünschte Länge zu erreichen
+            while (StrLen(level) < length[1]) {
+                level .= " "
+            }
+            return StrReplace(formattedMessage, match[0], level)
+        }
+        return StrReplace(formattedMessage, "%p", level)
     }
 }
