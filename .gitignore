@@ -1,2 +1,3 @@
-examples/*log*.txt
-examples/*.log
+*log*.txt
+*.log
+Lib/Aris
