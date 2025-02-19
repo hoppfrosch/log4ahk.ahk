@@ -42,7 +42,11 @@ class PatternLayout {
             message := RTrim(message, "`n")
             return StrReplace(formattedMessage, match[0], message)
         }
-        return StrReplace(formattedMessage, "%m", message)
+        ; Wenn eine andere Option als {chomp} angegeben wird, gebe einen Warnhinweis aus und verwende %m
+        if (option != "") {
+            MsgBox("Warnung: Unbekannte Option " . option . " für %m. Verwende Standard %m.")
+        }
+        return StrReplace(formattedMessage, match[0], message)
     }
 
     ; Ersetze %p oder %p{1} im formatierten Nachrichtentext durch das Logging-Level

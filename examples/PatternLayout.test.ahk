@@ -57,6 +57,15 @@ class PatternLayoutTests {
         this.assertEqual(formattedMessage, "Test message")
     }
 
+    ; Teste, ob die Nachricht mit unbekannter Option korrekt ersetzt wird und eine Warnung ausgegeben wird
+    TestReplaceMessageUnknownOption() {
+        layout := PatternLayout("%m{unknown}")
+        message := "Test message"
+        formattedMessage := layout.format("INFO", message)
+        this.assertEqual(formattedMessage, message)
+        ; Hier sollte eine Warnung ausgegeben werden (dies kann nicht direkt im Test überprüft werden)
+    }
+
     ; Teste, ob sowohl Datum als auch Nachricht korrekt ersetzt werden
     TestReplaceDateAndMessage() {
         layout := PatternLayout("%d %m")
@@ -95,6 +104,7 @@ class PatternLayoutTests {
         this.TestReplaceLevelMaxLength()
         this.TestReplaceMessage()
         this.TestReplaceMessageChomp()
+        this.TestReplaceMessageUnknownOption()
         this.TestReplaceDateAndMessage()
         this.TestReplaceDateLevelAndMessage()
         MsgBox("All tests passed.")
