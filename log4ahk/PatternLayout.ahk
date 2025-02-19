@@ -1,3 +1,5 @@
+#Include %A_LineFile%\..\LogLevel.ahk
+
 class PatternLayout {
     pattern := ""
     version := "1.0.0" ; Versionsnummer der Klasse
@@ -54,15 +56,16 @@ class PatternLayout {
     replaceLevel(formattedMessage, level, match) {
         ; Extrahiere die Option aus dem Match-Objekt
         option := match[1]
+        levelString := LogLevel.toString(level)
         ; Überprüfe, ob die Option {1-9} ist
         if RegExMatch(option, "{([1-9])}", &length) {
-            level := SubStr(level, 1, length[1])
+            levelString := SubStr(levelString, 1, length[1])
             ; Füge Leerzeichen hinzu, um die gewünschte Länge zu erreichen
-            while (StrLen(level) < length[1]) {
-                level .= " "
+            while (StrLen(levelString) < length[1]) {
+                levelString .= " "
             }
-            return StrReplace(formattedMessage, match[0], level)
+            return StrReplace(formattedMessage, match[0], levelString)
         }
-        return StrReplace(formattedMessage, "%p", level)
+        return StrReplace(formattedMessage, match[0], levelString)
     }
 }

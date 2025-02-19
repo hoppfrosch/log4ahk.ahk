@@ -42,7 +42,7 @@ class PatternLayoutDateTestSuite {
 
     TestReplaceDate() {
         layout := PatternLayout("%d")
-        formattedMessage := layout.format("INFO", "Test message")
+        formattedMessage := layout.format(LogLevel.INFO, "Test message")
         expectedDate := FormatTime(A_Now, "yyyy/MM/dd HH:mm:ss")
         Yunit.assert(StrReplace(formattedMessage, expectedDate, "") == "", "TestReplaceDate failed")
     }
@@ -50,7 +50,7 @@ class PatternLayoutDateTestSuite {
     TestReplaceDateAndMessage() {
         layout := PatternLayout("%d %m")
         message := "Test message"
-        formattedMessage := layout.format("INFO", message)
+        formattedMessage := layout.format(LogLevel.INFO, message)
         expectedDate := FormatTime(A_Now, "yyyy/MM/dd HH:mm:ss")
         expectedMessage := expectedDate . " " . message
         Yunit.assert(formattedMessage == expectedMessage, "TestReplaceDateAndMessage failed")
@@ -58,11 +58,11 @@ class PatternLayoutDateTestSuite {
 
     TestReplaceDateLevelAndMessage() {
         layout := PatternLayout("%d %p %m")
-        level := "INFO"
+        level := LogLevel.INFO
         message := "Test message"
         formattedMessage := layout.format(level, message)
         expectedDate := FormatTime(A_Now, "yyyy/MM/dd HH:mm:ss")
-        expectedMessage := expectedDate . " " . level . " " . message
+        expectedMessage := expectedDate . " " . LogLevel.toString(level) . " " . message
         Yunit.assert(formattedMessage == expectedMessage, "TestReplaceDateLevelAndMessage failed")
     }
 
@@ -78,28 +78,28 @@ class PatternLayoutLevelTestSuite {
 
     TestReplaceLevel() {
         layout := PatternLayout("%p")
-        level := "INFO"
+        level := LogLevel.INFO
         formattedMessage := layout.format(level, "Test message")
-        Yunit.assert(formattedMessage == level, "TestReplaceLevel failed")
+        Yunit.assert(formattedMessage == LogLevel.toString(level), "TestReplaceLevel failed")
     }
 
     TestReplaceLevelFirstLetter() {
         layout := PatternLayout("%p{1}")
-        level := "INFO"
+        level := LogLevel.INFO
         formattedMessage := layout.format(level, "Test message")
         Yunit.assert(formattedMessage == "I", "TestReplaceLevelFirstLetter failed")
     }
 
     TestReplaceLevelCustomLength() {
         layout := PatternLayout("%p{2}")
-        level := "INFO"
+        level := LogLevel.INFO
         formattedMessage := layout.format(level, "Test message")
         Yunit.assert(formattedMessage == "IN", "TestReplaceLevelCustomLength failed")
     }
 
     TestReplaceLevelMaxLength() {
         layout := PatternLayout("%p{9}")
-        level := "INFO"
+        level := LogLevel.INFO
         formattedMessage := layout.format(level, "Test message")
         Yunit.assert(formattedMessage == "INFO     ", "TestReplaceLevelMaxLength failed")
     }
@@ -117,21 +117,21 @@ class PatternLayoutMessageTestSuite {
     TestReplaceMessage() {
         layout := PatternLayout("%m")
         message := "Test message"
-        formattedMessage := layout.format("INFO", message)
+        formattedMessage := layout.format(LogLevel.INFO, message)
         Yunit.assert(formattedMessage == message, "TestReplaceMessage failed")
     }
 
     TestReplaceMessageChomp() {
         layout := PatternLayout("%m{chomp}")
         message := "Test message`n"
-        formattedMessage := layout.format("INFO", message)
+        formattedMessage := layout.format(LogLevel.INFO, message)
         Yunit.assert(formattedMessage == "Test message", "TestReplaceMessageChomp failed")
     }
 
     TestReplaceMessageUnknownOption() {
         layout := PatternLayout("%m{unknown}")
         message := "Test message"
-        formattedMessage := layout.format("INFO", message)
+        formattedMessage := layout.format(LogLevel.INFO, message)
         Yunit.assert(formattedMessage == message, "TestReplaceMessageUnknownOption failed")
         ; Hier sollte eine Warnung ausgegeben werden (dies kann nicht direkt im Test überprüft werden)
     }
