@@ -3,15 +3,14 @@
 
 #include %A_ScriptDir%\..\logger.ahk
 
-; Erstelle eine Instanz des Loggers mit dem Log-Level DEBUG
-mylogger := Logger(Logger.DEBUG)
-; Setze die Log-Datei
-mylogger.setLogFile("my_log.txt")
+; Beispiel zur Verwendung des Loggers mit SimpleLayout
+simpleLogger := Logger.getInstance()
+simpleLogger.setLogLevel(LogLevel.DEBUG)
+simpleLogger.setLogFile("example_log.txt")
+simpleLogger.setLayout(SimpleLayout())
 
-; Protokolliere Nachrichten auf verschiedenen Log-Leveln
-;logger.trace("Dies ist eine TRACE-Nachricht")
-;logger.debug("Dies ist eine DEBUG-Nachricht")
-;logger.info("Dies ist eine INFO-Nachricht")
-;logger.warning("Dies ist eine WARNING-Nachricht")
-mylogger.error("Dies ist eine ERROR-Nachricht")
-;logger.severe("Dies ist eine SEVERE-Nachricht")
+simpleLogger.debug("Dies ist eine Debug-Nachricht.")
+simpleLogger.info("Dies ist eine Info-Nachricht.")
+simpleLogger.warning("Dies ist eine Warnung.")
+simpleLogger.error("Dies ist eine Fehlermeldung.")
+simpleLogger.severe("Dies ist eine schwere Fehlermeldung.")

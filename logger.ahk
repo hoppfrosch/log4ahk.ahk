@@ -1,29 +1,22 @@
 #Include %A_LineFile%\..\log4ahk\PatternLayout.ahk
+#Include %A_LineFile%\..\log4ahk\LogLevel.ahk
 
 class SimpleLayout {
     ; Methode zum Formatieren der Log-Nachricht
     format(level, message) {
         formattedTime := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") ; Formatierte Zeit
-        levelString := Logger().levelToString(level)
+        levelString := LogLevel.toString(level)
         return Format("[{}] [{}] {}", formattedTime, levelString, message)
     }
 }
 
 class Logger {
-    ; Definiere die verschiedenen Log-Level als statische Variablen
-    static TRACE := 0
-    static DEBUG := 1
-    static INFO := 2
-    static WARNING := 3
-    static ERROR := 4
-    static SEVERE := 5
-
     ; Statische Variable zur Speicherung der Singleton-Instanz
     static instance := ""
 
     ; Konstruktor der Klasse, der das Log-Level initialisiert
-    __New(logLevel := Logger.INFO, layout := "") {
-        this.logLevel := logLevel
+    __New(logLvl := LogLevel.INFO, layout := "") {
+        this.logLevel := logLvl
         this.logFile := "log.txt" ; Standard-Log-Datei
         this.layout := layout ? layout : SimpleLayout() ; Verwende SimpleLayout als Standard
         this.ensureLogFileExists()
@@ -49,33 +42,27 @@ class Logger {
 
     ; Methoden für die verschiedenen Log-Level
     trace(message) {
-        this.log(Logger.TRACE, message)
+        this.log(LogLevel.TRACE, message)
     }
 
     debug(message) {
-        this.log(Logger.DEBUG, message)
+        this.log(LogLevel.DEBUG, message)
     }
 
     info(message) {
-        this.log(Logger.INFO, message)
+        this.log(LogLevel.INFO, message)
     }
 
     warning(message) {
-        this.log(Logger.WARNING, message)
+        this.log(LogLevel.WARNING, message)
     }
 
     error(message) {
-        this.log(Logger.ERROR, message)
+        this.log(LogLevel.ERROR, message)
     }
 
     severe(message) {
-        this.log(Logger.SEVERE, message)
-    }
-
-    ; Methode zur Umwandlung des Log-Levels in einen String
-    levelToString(level) {
-        static levels := ["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "SEVERE"]
-        return levels[level + 1]
+        this.log(LogLevel.SEVERE, message)
     }
 
     ; Methode zur Ausgabe der Log-Nachricht (hier als ToolTip)
