@@ -1,14 +1,14 @@
-#Include %A_LineFile%\..\log4ahk\PatternLayout.ahk
-#Include %A_LineFile%\..\log4ahk\SimpleLayout.ahk
-#Include %A_LineFile%\..\log4ahk\LogLevel.ahk
+#Include %A_LineFile%\..\PatternLayout.ahk
+#Include %A_LineFile%\..\SimpleLayout.ahk
+#Include %A_LineFile%\..\LogLevel.ahk
 
 class Logger {
     ; Statische Variable zur Speicherung der Singleton-Instanz
     static instance := ""
 
     ; Konstruktor der Klasse, der das Log-Level initialisiert
-    __New(logLevel := LogLevel.INFO, layout := "") {
-        this.logLevel := logLevel
+    __New(logLvl := LogLevel.INFO, layout := "") {
+        this.logLevel := logLvl
         this.logFile := "log.txt" ; Standard-Log-Datei
         this.layout := layout ? layout : SimpleLayout() ; Verwende SimpleLayout als Standard
         this.ensureLogFileExists()

@@ -1,7 +1,7 @@
 #Warn All
 #Warn LocalSameAsGlobal, Off
 
-#include %A_ScriptDir%\..\logger.ahk
+#include %A_ScriptDir%\..\log4ahk.ahk
 
 ; Beispiel zur Verwendung des Loggers mit SimpleLayout
 simpleLogger := Logger.getInstance()
