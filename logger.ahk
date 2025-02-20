@@ -1,22 +1,14 @@
 #Include %A_LineFile%\..\log4ahk\PatternLayout.ahk
+#Include %A_LineFile%\..\log4ahk\SimpleLayout.ahk
 #Include %A_LineFile%\..\log4ahk\LogLevel.ahk
-
-class SimpleLayout {
-    ; Methode zum Formatieren der Log-Nachricht
-    format(level, message) {
-        formattedTime := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") ; Formatierte Zeit
-        levelString := LogLevel.toString(level)
-        return Format("[{}] [{}] {}", formattedTime, levelString, message)
-    }
-}
 
 class Logger {
     ; Statische Variable zur Speicherung der Singleton-Instanz
     static instance := ""
 
     ; Konstruktor der Klasse, der das Log-Level initialisiert
-    __New(logLvl := LogLevel.INFO, layout := "") {
-        this.logLevel := logLvl
+    __New(logLevel := LogLevel.INFO, layout := "") {
+        this.logLevel := logLevel
         this.logFile := "log.txt" ; Standard-Log-Datei
         this.layout := layout ? layout : SimpleLayout() ; Verwende SimpleLayout als Standard
         this.ensureLogFileExists()
