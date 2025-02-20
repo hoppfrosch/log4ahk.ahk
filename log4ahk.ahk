@@ -5,3 +5,4 @@
 #Include %A_LineFile%\..\log4ahk\SimpleLayout.ahk
 
 #Include %A_LineFile%\..\log4ahk\FileAppender.ahk
+#Include %A_LineFile%\..\log4ahk\OutputDebugAppender.ahk

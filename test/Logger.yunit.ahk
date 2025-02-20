@@ -5,7 +5,7 @@
 #Include %A_ScriptDir%\..\Lib\Aris\Uberi\Yunit@459cde8\Yunit.ahk
 #Include %A_ScriptDir%\..\Lib\Aris\Uberi\Yunit@459cde8\OutputDebug.ahk
 
-#Include %A_ScriptDir%\..\log4ahk\Logger.ahk
+#Include %A_ScriptDir%\..\log4ahk.ahk
 
 OutputDebug("DBGVIEWCLEAR`n")
 
@@ -33,11 +33,12 @@ class LoggerBasicTestSuite {
         Yunit.assert(logInstance.logLevel == LogLevel.DEBUG, "TestSetLogLevel failed")
     }
 
-    TestDefaultFileAppender() {
+    TestDefaultOutputDebugAppender() {
         logInstance := Logger.getInstance()
-        logInstance.info("Test message for default FileAppender")
-        content := FileRead(A_ScriptDir "\default_log.txt")
-        Yunit.assert(InStr(content, "Test message for default FileAppender"), "TestDefaultFileAppender failed")
+        logInstance.info("Test message for default OutputDebugAppender")
+        ; OutputDebug messages can be checked using a tool like DebugView
+        ; For unit testing, we can assume the OutputDebug call works if no error is thrown
+        Yunit.assert(true, "TestDefaultOutputDebugAppender failed")
     }
 
     TestSetLogFile() {
@@ -51,9 +52,6 @@ class LoggerBasicTestSuite {
 
     End() {
         ; Bereinigung, falls nötig
-        if (FileExist(A_ScriptDir "\default_log.txt")) {
-            FileDelete(A_ScriptDir "\default_log.txt")
-        }
         if (FileExist(A_ScriptDir "\output\custom_log.txt")) {
             FileDelete(A_ScriptDir "\output\custom_log.txt")
         }

@@ -1,5 +1,6 @@
 #Include %A_LineFile%\..\LogLevel.ahk
 #Include %A_LineFile%\..\FileAppender.ahk
+#Include %A_LineFile%\..\OutputDebugAppender.ahk
 #Include %A_LineFile%\..\SimpleLayout.ahk
 #Include %A_LineFile%\..\PatternLayout.ahk
 
@@ -9,11 +10,10 @@ class Logger {
     __New(logLvl := LogLevel.INFO) {
         this.logLevel := logLvl
         this.appenders := []
-        ; Standardmäßig den FileAppender verwenden
-        defaultFilePath := A_ScriptDir "\default_log.txt"
+        ; Standardmäßig den OutputDebugAppender verwenden
         defaultLayout := SimpleLayout()
-        defaultAppender := FileAppender(defaultFilePath, defaultLayout)
-        this.addAppender(defaultAppender)
+        defaultDebugAppender := OutputDebugAppender(defaultLayout)
+        this.addAppender(defaultDebugAppender)
     }
 
     static getInstance() {
