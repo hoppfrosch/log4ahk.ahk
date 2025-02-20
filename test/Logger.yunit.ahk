@@ -33,14 +33,30 @@ class LoggerBasicTestSuite {
         Yunit.assert(logInstance.logLevel == LogLevel.DEBUG, "TestSetLogLevel failed")
     }
 
+    TestDefaultFileAppender() {
+        logInstance := Logger.getInstance()
+        logInstance.info("Test message for default FileAppender")
+        content := FileRead(A_ScriptDir "\default_log.txt")
+        Yunit.assert(InStr(content, "Test message for default FileAppender"), "TestDefaultFileAppender failed")
+    }
+
     TestSetLogFile() {
         logInstance := Logger.getInstance()
-        logInstance.setLogFile(A_ScriptDir "\output\test_log.txt")
-        Yunit.assert(logInstance.logFile == A_ScriptDir "\output\test_log.txt", "TestSetLogFile failed")
+        customAppender := FileAppender(A_ScriptDir "\output\custom_log.txt")
+        logInstance.addAppender(customAppender)
+        logInstance.info("Test message for custom FileAppender")
+        content := FileRead(A_ScriptDir "\output\custom_log.txt")
+        Yunit.assert(InStr(content, "Test message for custom FileAppender"), "TestSetLogFile failed")
     }
 
     End() {
         ; Bereinigung, falls nötig
+        if (FileExist(A_ScriptDir "\default_log.txt")) {
+            FileDelete(A_ScriptDir "\default_log.txt")
+        }
+        if (FileExist(A_ScriptDir "\output\custom_log.txt")) {
+            FileDelete(A_ScriptDir "\output\custom_log.txt")
+        }
     }
 }
 
@@ -51,11 +67,12 @@ class LoggerLayoutTestSuite {
 
     TestSimpleLayout() {
         logInstance := Logger.getInstance()
-        logInstance.setLayout(SimpleLayout())
+        layout := SimpleLayout()
+        customAppender := FileAppender(A_ScriptDir "\output\simple_layout_test_log.txt", layout)
+        logInstance.addAppender(customAppender)
         logInstance.setLogLevel(LogLevel.INFO)
-        logInstance.setLogFile(A_ScriptDir "\output\simple_layout_test_log.txt")
         logInstance.info("Test message for SimpleLayout")
-        content := FileRead(logInstance.logFile)
+        content := FileRead(A_ScriptDir "\output\simple_layout_test_log.txt")
         expectedTime := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
         expectedMessage := Format("[{}] [INFO] Test message for SimpleLayout", expectedTime)
         Yunit.assert(InStr(content, expectedMessage), "TestSimpleLayout failed")
@@ -63,11 +80,12 @@ class LoggerLayoutTestSuite {
 
     TestPatternLayout() {
         logInstance := Logger.getInstance()
-        logInstance.setLayout(PatternLayout("%d [%p] %m"))
+        layout := PatternLayout("%d [%p] %m")
+        customAppender := FileAppender(A_ScriptDir "\output\pattern_layout_test_log.txt", layout)
+        logInstance.addAppender(customAppender)
         logInstance.setLogLevel(LogLevel.INFO)
-        logInstance.setLogFile(A_ScriptDir "\output\pattern_layout_test_log.txt")
         logInstance.info("Test message for PatternLayout")
-        content := FileRead(logInstance.logFile)
+        content := FileRead(A_ScriptDir "\output\pattern_layout_test_log.txt")
         expectedTime := FormatTime(A_Now, "yyyy/MM/dd HH:mm:ss")
         expectedMessage := Format("{} [INFO] Test message for PatternLayout", expectedTime)
         Yunit.assert(InStr(content, expectedMessage), "TestPatternLayout failed")
@@ -75,5 +93,11 @@ class LoggerLayoutTestSuite {
 
     End() {
         ; Bereinigung, falls nötig
+        if (FileExist(A_ScriptDir "\output\simple_layout_test_log.txt")) {
+            FileDelete(A_ScriptDir "\output\simple_layout_test_log.txt")
+        }
+        if (FileExist(A_ScriptDir "\output\pattern_layout_test_log.txt")) {
+            FileDelete(A_ScriptDir "\output\pattern_layout_test_log.txt")
+        }
     }
 }

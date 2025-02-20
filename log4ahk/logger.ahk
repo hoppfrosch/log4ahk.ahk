@@ -1,20 +1,21 @@
-#Include %A_LineFile%\..\PatternLayout.ahk
-#Include %A_LineFile%\..\SimpleLayout.ahk
 #Include %A_LineFile%\..\LogLevel.ahk
+#Include %A_LineFile%\..\FileAppender.ahk
+#Include %A_LineFile%\..\SimpleLayout.ahk
+#Include %A_LineFile%\..\PatternLayout.ahk
 
 class Logger {
-    ; Statische Variable zur Speicherung der Singleton-Instanz
     static instance := ""
 
-    ; Konstruktor der Klasse, der das Log-Level initialisiert
-    __New(logLvl := LogLevel.INFO, layout := "") {
+    __New(logLvl := LogLevel.INFO) {
         this.logLevel := logLvl
-        this.logFile := "log.txt" ; Standard-Log-Datei
-        this.layout := layout ? layout : SimpleLayout() ; Verwende SimpleLayout als Standard
-        this.ensureLogFileExists()
+        this.appenders := []
+        ; Standardmäßig den FileAppender verwenden
+        defaultFilePath := A_ScriptDir "\default_log.txt"
+        defaultLayout := SimpleLayout()
+        defaultAppender := FileAppender(defaultFilePath, defaultLayout)
+        this.addAppender(defaultAppender)
     }
 
-    ; Methode zum Abrufen der Singleton-Instanz
     static getInstance() {
         if (!Logger.instance) {
             Logger.instance := Logger()
@@ -22,17 +23,19 @@ class Logger {
         return Logger.instance
     }
 
-    ; Methode zum Schreiben einer Log-Nachricht
+    addAppender(appender) {
+        this.appenders.Push(appender)
+    }
+
     log(level, message) {
-        ; Überprüfe, ob der aktuelle Log-Level das Mindestlevel erreicht hat
         if (level >= this.logLevel) {
-            logMessage := this.layout.format(level, message)
-            FileAppend(logMessage "`n", this.logFile) ; Nachricht in die Log-Datei schreiben
-            this.output(logMessage) ; Nachricht ausgeben
+            for appender in this.appenders {
+                appender.append(level, message)
+            }
+            this.output(message)
         }
     }
 
-    ; Methoden für die verschiedenen Log-Level
     trace(message) {
         this.log(LogLevel.TRACE, message)
     }
@@ -57,32 +60,11 @@ class Logger {
         this.log(LogLevel.SEVERE, message)
     }
 
-    ; Methode zur Ausgabe der Log-Nachricht (hier als ToolTip)
     output(message) {
-        ; Du kannst diese Methode anpassen, um die Ausgabe zu ändern (z.B. MsgBox statt ToolTip)
         ToolTip(message)
     }
 
-    ; Methode zum Setzen des Log-Levels
     setLogLevel(level) {
         this.logLevel := level
-    }
-
-    ; Methode zum Setzen der Log-Datei
-    setLogFile(filePath) {
-        this.logFile := filePath
-        this.ensureLogFileExists()
-    }
-
-    ; Methode zum Setzen des Layouts
-    setLayout(layout) {
-        this.layout := layout
-    }
-
-    ; Methode zum Sicherstellen, dass die Log-Datei existiert
-    ensureLogFileExists() {
-        if !FileExist(this.logFile) {
-            FileAppend("", this.logFile)
-        }
     }
 }

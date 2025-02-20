@@ -1,28 +1,23 @@
-#Warn All
-#Warn LocalSameAsGlobal, Off
+#Requires AutoHotkey v2.0-
+#Warn
+#SingleInstance force
 
-#include %A_ScriptDir%\..\log4ahk.ahk
+#Include %A_ScriptDir%\..\log4ahk\Logger.ahk
 
-; Beispiel zur Verwendung des Loggers mit SimpleLayout
-simpleLogger := Logger.getInstance()
-simpleLogger.setLogLevel(LogLevel.DEBUG)
-simpleLogger.setLogFile("example_log.txt")
-simpleLogger.setLayout(SimpleLayout())
+loggerInstance := Logger.getInstance()
+loggerInstance.setLogLevel(LogLevel.DEBUG)
 
-simpleLogger.debug("Dies ist eine Debug-Nachricht.")
-simpleLogger.info("Dies ist eine Info-Nachricht.")
-simpleLogger.warning("Dies ist eine Warnung.")
-simpleLogger.error("Dies ist eine Fehlermeldung.")
-simpleLogger.severe("Dies ist eine schwere Fehlermeldung.")
+; Log some messages
+loggerInstance.trace("This is a TRACE message")
+loggerInstance.debug("This is a DEBUG message")
+loggerInstance.info("This is an INFO message")
+loggerInstance.warning("This is a WARNING message")
+loggerInstance.error("This is an ERROR message")
+loggerInstance.severe("This is a SEVERE message")
 
-; Beispiel zur Verwendung des Loggers mit PatternLayout
-patternLogger := Logger.getInstance()
-patternLogger.setLogLevel(LogLevel.DEBUG)
-patternLogger.setLogFile("pattern_log.txt")
-patternLogger.setLayout(PatternLayout("%d [%p] %m"))
+; Custom appender example
+customAppender := FileAppender(A_ScriptDir "\custom_log.txt", PatternLayout("%d [%p] %m"))
+loggerInstance.addAppender(customAppender)
+loggerInstance.info("This is an INFO message for the custom appender")
 
-patternLogger.debug("Dies ist eine Debug-Nachricht.")
-patternLogger.info("Dies ist eine Info-Nachricht.")
-patternLogger.warning("Dies ist eine Warnung.")
-patternLogger.error("Dies ist eine Fehlermeldung.")
-patternLogger.severe("Dies ist eine schwere Fehlermeldung.")
+MsgBox "Logging complete. Check the output directory for log files."
