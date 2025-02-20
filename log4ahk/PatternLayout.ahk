@@ -1,6 +1,7 @@
 #Include %A_LineFile%\..\LogLevel.ahk
+#Include %A_LineFile%\..\BaseLayout.ahk
 
-class PatternLayout {
+class PatternLayout extends BaseLayout {
     pattern := ""
     version := "1.0.0" ; Versionsnummer der Klasse
 
