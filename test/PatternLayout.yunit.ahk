@@ -2,12 +2,11 @@
 #Warn
 #SingleInstance force
 
-; #include <%A_ScriptDir%/../Lib/Aris/Uberi> ; Uberi/Yunit@459cde8
-
 #Include %A_ScriptDir%\..\Lib\Aris\Uberi\Yunit@459cde8\Yunit.ahk
 #Include %A_ScriptDir%\..\Lib\Aris\Uberi\Yunit@459cde8\OutputDebug.ahk
 
 #Include %A_ScriptDir%\..\log4ahk\PatternLayout.ahk
+#Include %A_ScriptDir%\..\log4ahk\LogLevel.ahk
 
 OutputDebug "DBGVIEWCLEAR" "`n"
 
@@ -15,7 +14,8 @@ Yunit.Use(YunitOutputDebug).Test(
     PatternLayoutBaseTestSuite,
     PatternLayoutDateTestSuite,
     PatternLayoutLevelTestSuite,
-    PatternLayoutMessageTestSuite
+    PatternLayoutMessageTestSuite,
+    PatternLayoutCaseSensitivityTestSuite
 )
 
 ExitApp
@@ -28,6 +28,22 @@ class PatternLayoutBaseTestSuite {
     TestVersion() {
         layout := PatternLayout("%d %p %m")
         Yunit.assert(layout.version == "1.0.0", "TestVersion failed")
+    }
+
+    TestReplacePID() {
+        layout := PatternLayout("%P")
+        formattedMessage := layout.format(LogLevel.INFO, "Test message")
+        expectedPID := DllCall("GetCurrentProcessId")
+        Yunit.assert(formattedMessage == expectedPID, "TestReplacePID failed")
+    }
+
+    TestReplacePIDWithMessage() {
+        layout := PatternLayout("%P %m")
+        message := "Test message"
+        formattedMessage := layout.format(LogLevel.INFO, message)
+        expectedPID := DllCall("GetCurrentProcessId")
+        expectedMessage := expectedPID . " " . message
+        Yunit.assert(formattedMessage == expectedMessage, "TestReplacePIDWithMessage failed")
     }
 
     End() {
@@ -134,6 +150,44 @@ class PatternLayoutMessageTestSuite {
         formattedMessage := layout.format(LogLevel.INFO, message)
         Yunit.assert(formattedMessage == message, "TestReplaceMessageUnknownOption failed")
         ; Hier sollte eine Warnung ausgegeben werden (dies kann nicht direkt im Test überprüft werden)
+    }
+
+    End() {
+        ; Bereinigung, falls nötig
+    }
+}
+
+class PatternLayoutCaseSensitivityTestSuite {
+    Begin() {
+        ; Initialisierung, falls nötig
+    }
+
+   TestCaseSensitivity() {
+        patterns := ["%d", "%m", "%p", "%P"]
+        level := LogLevel.INFO
+        message := "Test message"
+
+        for pattern in patterns {
+            lowercase := PatternLayout(StrLower(pattern)).format(level, message)
+        	uppercase := PatternLayout(StrUpper(pattern)).format(level, message)
+
+                Yunit.assert(lowercase != uppercase,
+                    "Patterns " . pattern . " and " . StrUpper(pattern) . " should produce different results")
+
+                if (pattern == "%m") {
+                    Yunit.assert(lowercase == message,
+                        "%m should produce the original message")
+                } else if (pattern == "%d") {
+                    Yunit.assert(RegExMatch(lowercase, "\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}"),
+                        "%d should produce a valid date string")
+				} else if (pattern == "%p") {
+					Yunit.assert(lowercase == LogLevel.toString(level),
+                    "%p should produce the log level string")
+				} else if (pattern == "%P") {
+					Yunit.assert(uppercase == DllCall("GetCurrentProcessId"),
+                    "%P should produce the process ID")
+                }
+        }
     }
 
     End() {
