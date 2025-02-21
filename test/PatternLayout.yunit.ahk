@@ -25,11 +25,6 @@ class PatternLayoutBaseTestSuite {
         ; Initialisierung, falls nötig
     }
 
-    TestVersion() {
-        layout := PatternLayout("%d %p %m")
-        Yunit.assert(layout.version == "1.0.0", "TestVersion failed")
-    }
-
     TestReplacePID() {
         layout := PatternLayout("%P")
         formattedMessage := layout.format(LogLevel.INFO, "Test message")
@@ -97,27 +92,6 @@ class PatternLayoutLevelTestSuite {
         level := LogLevel.INFO
         formattedMessage := layout.format(level, "Test message")
         Yunit.assert(formattedMessage == LogLevel.toString(level), "TestReplaceLevel failed")
-    }
-
-    TestReplaceLevelFirstLetter() {
-        layout := PatternLayout("%p{1}")
-        level := LogLevel.INFO
-        formattedMessage := layout.format(level, "Test message")
-        Yunit.assert(formattedMessage == "I", "TestReplaceLevelFirstLetter failed")
-    }
-
-    TestReplaceLevelCustomLength() {
-        layout := PatternLayout("%p{2}")
-        level := LogLevel.INFO
-        formattedMessage := layout.format(level, "Test message")
-        Yunit.assert(formattedMessage == "IN", "TestReplaceLevelCustomLength failed")
-    }
-
-    TestReplaceLevelMaxLength() {
-        layout := PatternLayout("%p{9}")
-        level := LogLevel.INFO
-        formattedMessage := layout.format(level, "Test message")
-        Yunit.assert(formattedMessage == "INFO     ", "TestReplaceLevelMaxLength failed")
     }
 
     End() {

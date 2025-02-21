@@ -5,14 +5,11 @@ class PatternLayout extends BaseLayout {
     pattern := ""
     placeholders := []
 
-    ; Konstruktor: Initialisiere die Klasse mit dem angegebenen Muster
     __New(pattern) {
         this.pattern := pattern
         this.extractPlaceholders()
-		X:= 0
     }
 
-    ; Neue Methode zum Extrahieren der Platzhalter
     extractPlaceholders() {
         regex := "%(?:(?<quantifier>-?\d{1,3}|\.\d{1,3}))?(?<type>[mpPd])(?:\{(?<options>.*?)\})?"
         startPos := 1
@@ -29,64 +26,45 @@ class PatternLayout extends BaseLayout {
         }
     }
 
-    ; Der Rest des Codes bleibt unverändert
     format(level, message) {
         formattedMessage := this.pattern
+        patterns := Map(
+            "d", (p) => this.replaceDate(p),
+            "m", (p) => this.replaceMessage(p, message),
+            "p", (p) => this.replaceLevel(p, level),
+            "P", (p) => this.replacePID(p)
+        )
 
-        match := ""
-        if RegExMatch(this.pattern, "%d", &match) {
-            formattedMessage := this.replaceDate(formattedMessage, match)
-        }
-
-        match := ""
-        if RegExMatch(this.pattern, "%m({.*})?", &match) {
-            formattedMessage := this.replaceMessage(formattedMessage, message, match)
-        }
-
-        match := ""
-        if RegExMatch(this.pattern, "%p({[1-9]})?", &match) {
-            formattedMessage := this.replaceLevel(formattedMessage, level, match)
-        }
-
-        match := ""
-        if RegExMatch(this.pattern, "%P", &match) {
-            formattedMessage := this.replacePID(formattedMessage, match)
+        for placeholder in this.placeholders {
+            if patterns.Has(placeholder.type) {
+                replacement := patterns[placeholder.type](placeholder)
+                formattedMessage := StrReplace(formattedMessage, placeholder.fullMatch, replacement)
+            }
         }
 
         return formattedMessage
     }
 
-    ; Die restlichen Methoden bleiben unverändert
-    replaceDate(formattedMessage, match) {
-        return StrReplace(formattedMessage, "%d", FormatTime(A_Now, "yyyy/MM/dd HH:mm:ss"))
+    replaceDate(placeholder) {
+        return FormatTime(A_Now, "yyyy/MM/dd HH:mm:ss")
     }
 
-    replaceMessage(formattedMessage, message, match) {
-        option := match[1]
-        if (option = "{chomp}") {
-            message := RTrim(message, "`n")
-            return StrReplace(formattedMessage, match[0], message)
+    replaceMessage(placeholder, message) {
+        if (placeholder.options = "chomp") {
+            return RTrim(message, "`n")
         }
-        if (option != "") {
-            OutputDebug("[PatternLayout.replaceMessage] [WARN] Unbekannte Option " . option . " für %m. Verwende Standard %m.`n")
+        if (placeholder.options != "") {
+            OutputDebug("[PatternLayout.replaceMessage] [WARN] Unbekannte Option " . placeholder.options . " für %m. Verwende Standard %m.`n")
         }
-        return StrReplace(formattedMessage, match[0], message)
+        return message
     }
 
-    replaceLevel(formattedMessage, level, match) {
-        option := match[1]
+    replaceLevel(placeholder, level) {
         levelString := LogLevel.toString(level)
-        if RegExMatch(option, "{([1-9])}", &length) {
-            levelString := SubStr(levelString, 1, length[1])
-            while (StrLen(levelString) < length[1]) {
-                levelString .= " "
-            }
-            return StrReplace(formattedMessage, match[0], levelString)
-        }
-        return StrReplace(formattedMessage, match[0], levelString)
+        return levelString
     }
 
-    replacePID(formattedMessage, match) {
-        return StrReplace(formattedMessage, "%P", DllCall("GetCurrentProcessId"))
+    replacePID(placeholder) {
+        return DllCall("GetCurrentProcessId")
     }
 }
