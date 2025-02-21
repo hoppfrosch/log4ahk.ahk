@@ -2,79 +2,90 @@
 #Include %A_LineFile%\..\BaseLayout.ahk
 
 class PatternLayout extends BaseLayout {
-	pattern := ""
+    pattern := ""
+    placeholders := []
 
-	; Konstruktor: Initialisiere die Klasse mit dem angegebenen Muster
-	__New(pattern) {
-		this.pattern := pattern
-	}
+    ; Konstruktor: Initialisiere die Klasse mit dem angegebenen Muster
+    __New(pattern) {
+        this.pattern := pattern
+        this.extractPlaceholders()
+		X:= 0
+    }
 
-	; Format-Methode: Formatiere die Nachricht basierend auf dem Muster
-	format(level, message) {
-		formattedMessage := this.pattern
+    ; Neue Methode zum Extrahieren der Platzhalter
+    extractPlaceholders() {
+        regex := "%(?:(?<quantifier>-?\d{1,3}|\.\d{1,3}))?(?<type>[mpPd])(?:\{(?<options>.*?)\})?"
+        startPos := 1
+        while (match := RegExMatch(this.pattern, regex, &placeholder, startPos)) {
+            this.placeholders.Push({
+                fullMatch: placeholder[0],
+                quantifier: placeholder.quantifier,
+                type: placeholder.type,
+                options: placeholder.options,
+                startPos: match,
+                endPos: match + StrLen(placeholder[0]) - 1
+            })
+            startPos := match + StrLen(placeholder[0])
+        }
+    }
 
-		match := ""
-		if RegExMatch(this.pattern, "%d", &match) {
-			formattedMessage := this.replaceDate(formattedMessage, match)
-		}
+    ; Der Rest des Codes bleibt unverändert
+    format(level, message) {
+        formattedMessage := this.pattern
 
-		match := ""
-		if RegExMatch(this.pattern, "%m({.*})?", &match) {
-			formattedMessage := this.replaceMessage(formattedMessage, message, match)
-		}
+        match := ""
+        if RegExMatch(this.pattern, "%d", &match) {
+            formattedMessage := this.replaceDate(formattedMessage, match)
+        }
 
-		match := ""
-		if RegExMatch(this.pattern, "%p({[1-9]})?", &match) {
-			formattedMessage := this.replaceLevel(formattedMessage, level, match)
-		}
+        match := ""
+        if RegExMatch(this.pattern, "%m({.*})?", &match) {
+            formattedMessage := this.replaceMessage(formattedMessage, message, match)
+        }
 
-		match := ""
-		if RegExMatch(this.pattern, "%P", &match) {
-			formattedMessage := this.replacePID(formattedMessage, match)
-		}
+        match := ""
+        if RegExMatch(this.pattern, "%p({[1-9]})?", &match) {
+            formattedMessage := this.replaceLevel(formattedMessage, level, match)
+        }
 
-		return formattedMessage
-	}
+        match := ""
+        if RegExMatch(this.pattern, "%P", &match) {
+            formattedMessage := this.replacePID(formattedMessage, match)
+        }
 
-	; Ersetze %d im formatierten Nachrichtentext durch das aktuelle Datum und die Uhrzeit
-	replaceDate(formattedMessage, match) {
-		return StrReplace(formattedMessage, "%d", FormatTime(A_Now, "yyyy/MM/dd HH:mm:ss"))
-	}
+        return formattedMessage
+    }
 
-	; Ersetze %m oder %m{chomp} im formatierten Nachrichtentext durch die Nachricht
-	replaceMessage(formattedMessage, message, match) {
-		; Extrahiere die Option aus dem Match-Objekt
-		option := match[1]
-		; Überprüfe, ob die Option {chomp} ist
-		if (option = "{chomp}") {
-			message := RTrim(message, "`n")
-			return StrReplace(formattedMessage, match[0], message)
-		}
-		; Wenn eine andere Option als {chomp} angegeben wird, gebe einen Warnhinweis aus und verwende %m
-		if (option != "") {
-			OutputDebug("[PatternLayout.replaceMessage] [WARN] Unbekannte Option " . option . " für %m. Verwende Standard %m.`n")
-		}
-		return StrReplace(formattedMessage, match[0], message)
-	}
+    ; Die restlichen Methoden bleiben unverändert
+    replaceDate(formattedMessage, match) {
+        return StrReplace(formattedMessage, "%d", FormatTime(A_Now, "yyyy/MM/dd HH:mm:ss"))
+    }
 
-	; Ersetze %p oder %p{1} im formatierten Nachrichtentext durch das Logging-Level
-	replaceLevel(formattedMessage, level, match) {
-		; Extrahiere die Option aus dem Match-Objekt
-		option := match[1]
-		levelString := LogLevel.toString(level)
-		; Überprüfe, ob die Option {1-9} ist
-		if RegExMatch(option, "{([1-9])}", &length) {
-			levelString := SubStr(levelString, 1, length[1])
-			; Füge Leerzeichen hinzu, um die gewünschte Länge zu erreichen
-			while (StrLen(levelString) < length[1]) {
-				levelString .= " "
-			}
-			return StrReplace(formattedMessage, match[0], levelString)
-		}
-		return StrReplace(formattedMessage, match[0], levelString)
-	}
+    replaceMessage(formattedMessage, message, match) {
+        option := match[1]
+        if (option = "{chomp}") {
+            message := RTrim(message, "`n")
+            return StrReplace(formattedMessage, match[0], message)
+        }
+        if (option != "") {
+            OutputDebug("[PatternLayout.replaceMessage] [WARN] Unbekannte Option " . option . " für %m. Verwende Standard %m.`n")
+        }
+        return StrReplace(formattedMessage, match[0], message)
+    }
 
-    ; Ersetze %P im formatierten Nachrichtentext durch die PID des aktuellen Prozesses
+    replaceLevel(formattedMessage, level, match) {
+        option := match[1]
+        levelString := LogLevel.toString(level)
+        if RegExMatch(option, "{([1-9])}", &length) {
+            levelString := SubStr(levelString, 1, length[1])
+            while (StrLen(levelString) < length[1]) {
+                levelString .= " "
+            }
+            return StrReplace(formattedMessage, match[0], levelString)
+        }
+        return StrReplace(formattedMessage, match[0], levelString)
+    }
+
     replacePID(formattedMessage, match) {
         return StrReplace(formattedMessage, "%P", DllCall("GetCurrentProcessId"))
     }
